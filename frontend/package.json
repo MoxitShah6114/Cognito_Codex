@@ -19,7 +19,6 @@
     "leaflet": "^1.9.4",
     "react": "^19.0.0",
     "react-chartjs-2": "^5.3.0",
-    "react-credit-cards": "^0.8.3",
     "react-dom": "^19.0.0",
     "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.4.0",

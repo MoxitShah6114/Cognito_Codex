@@ -1,14 +1,189 @@
+// src/pages/DashboardPage/DashboardPage.js
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Paper, Grid, Tabs, Tab, Button, Chip, CircularProgress } from '@mui/material';
+import { 
+  Box, 
+  Typography, 
+  Paper, 
+  Grid, 
+  Card, 
+  CardContent, 
+  Button, 
+  Tabs, 
+  Tab, 
+  Chip, 
+  CircularProgress,
+  Avatar,
+  Divider,
+  IconButton,
+  LinearProgress,
+  useTheme,
+  Fade,
+  Zoom
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { getUserRides, getUserPenalties } from '../../services/rideService';
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import ElectricBikeIcon from '@mui/icons-material/ElectricBike';
+import RouteTwoToneIcon from '@mui/icons-material/RouteTwoTone';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import StarIcon from '@mui/icons-material/Star';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import MapIcon from '@mui/icons-material/Map';
+import DirectionsBikeIcon from '@mui/icons-material/DirectionsBike';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-// Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+// Replace Chart.js with a simpler visual component for stats
+const SimpleLineChart = ({ data, height = 200 }) => {
+  const theme = useTheme();
+  const maxValue = Math.max(...data.datasets[0].data) * 1.2 || 10;
+  
+  return (
+    <Box sx={{ height, position: 'relative', p: 1 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        height: '70%', 
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        position: 'relative',
+        zIndex: 2,
+      }}>
+        {data.datasets[0].data.map((value, index) => (
+          <Box key={index} sx={{ 
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            width: `${100 / data.datasets[0].data.length}%`
+          }}>
+            <Box sx={{ 
+              height: `${(value / maxValue) * 100}%`,
+              width: 12,
+              borderRadius: '4px 4px 0 0',
+              background: `linear-gradient(to top, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
+              minHeight: 4,
+              position: 'relative',
+              '&:hover': {
+                width: 16,
+                boxShadow: '0 0 10px rgba(33, 150, 243, 0.5)',
+              },
+              transition: 'width 0.3s, box-shadow 0.3s',
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: '30%',
+                background: `linear-gradient(to top, ${theme.palette.primary.dark}, transparent)`,
+                borderRadius: '4px 4px 0 0',
+              }
+            }}>
+              <Box sx={{ 
+                position: 'absolute',
+                top: -25,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                bgcolor: 'primary.light',
+                color: 'white',
+                fontSize: '0.7rem',
+                fontWeight: 'bold',
+                py: 0.5,
+                px: 1,
+                borderRadius: 1,
+                visibility: 'hidden',
+                opacity: 0,
+                transition: 'visibility 0s, opacity 0.3s',
+                '&:hover': {
+                  visibility: 'visible',
+                  opacity: 1,
+                }
+              }}>
+                {value}
+              </Box>
+            </Box>
+            <Typography variant="caption" sx={{ mt: 1, fontSize: '0.7rem' }}>
+              {data.labels[index]}
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+      
+      {/* Horizontal lines in background */}
+      <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: '30%', zIndex: 1 }}>
+        {[0.2, 0.4, 0.6, 0.8].map((pos, i) => (
+          <Box key={i} sx={{ 
+            position: 'absolute', 
+            left: 0,
+            right: 0,
+            bottom: `${pos * 100}%`,
+            height: 1,
+            bgcolor: 'rgba(0,0,0,0.05)'
+          }} />
+        ))}
+      </Box>
+    </Box>
+  );
+};
+
+// Usage stats card component
+const StatCard = ({ icon, title, value, color, percent }) => {
+  const theme = useTheme();
+  
+  return (
+    <Card sx={{ 
+      height: '100%', 
+      borderRadius: 4,
+      boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+      overflow: 'visible',
+      '&:hover': {
+        transform: 'translateY(-5px)',
+        boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+      }
+    }}>
+      <CardContent sx={{ p: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Avatar sx={{ bgcolor: `${color}.light`, color: color, mr: 2 }}>
+            {icon}
+          </Avatar>
+          <Typography variant="h6" component="div">
+            {title}
+          </Typography>
+        </Box>
+        
+        <Typography variant="h3" component="div" gutterBottom sx={{ fontWeight: 600 }}>
+          {value}
+        </Typography>
+        
+        {percent !== undefined && (
+          <Box sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
+            <LinearProgress 
+              variant="determinate" 
+              value={percent} 
+              sx={{ 
+                flexGrow: 1, 
+                mr: 2, 
+                height: 8, 
+                borderRadius: 4,
+                bgcolor: theme.palette.grey[100],
+                '& .MuiLinearProgress-bar': {
+                  borderRadius: 4,
+                  background: `linear-gradient(to right, ${theme.palette[color].light}, ${theme.palette[color].main})`,
+                }
+              }} 
+            />
+            <Typography variant="body2" color="text.secondary">
+              {percent}%
+            </Typography>
+          </Box>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 const DashboardPage = () => {
+  const theme = useTheme();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [tabValue, setTabValue] = useState(0);
@@ -63,8 +238,8 @@ const DashboardPage = () => {
   };
 
   const getChartData = () => {
-    const labels = rides.slice(0, 7).map(ride => ride.date).reverse();
-    const distances = rides.slice(0, 7).map(ride => ride.distance).reverse();
+    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const distances = [5.2, 3.7, 0, 8.3, 4.1, 10.2, 6.5];
     
     return {
       labels,
@@ -73,8 +248,8 @@ const DashboardPage = () => {
           label: 'Distance (km)',
           data: distances,
           fill: false,
-          backgroundColor: 'rgb(75, 192, 192)',
-          borderColor: 'rgba(75, 192, 192, 0.8)',
+          backgroundColor: theme.palette.primary.main,
+          borderColor: theme.palette.primary.main,
         },
       ],
     };
@@ -82,16 +257,16 @@ const DashboardPage = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', my: 8 }}>
-        <CircularProgress />
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
+        <CircularProgress size={60} thickness={4} />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ my: 4 }}>
+    <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4">
+        <Typography variant="h4" sx={{ fontWeight: 600 }}>
           My Dashboard
         </Typography>
         
@@ -99,117 +274,245 @@ const DashboardPage = () => {
           variant="contained" 
           color="primary"
           onClick={handleNewRide}
+          startIcon={<ElectricBikeIcon />}
+          sx={{ 
+            borderRadius: 8,
+            px: 3,
+            boxShadow: '0 4px 14px rgba(33, 150, 243, 0.3)',
+          }}
         >
           New Ride
         </Button>
       </Box>
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
-            <Typography variant="h6" gutterBottom>
-              Total Rides
-            </Typography>
-            <Typography variant="h4">
-              {stats.totalRides}
-            </Typography>
-          </Paper>
+        <Grid item xs={12} sm={6} lg={3}>
+          <Zoom in={true} style={{ transitionDelay: '100ms' }}>
+            <Box>
+              <StatCard
+                icon={<ElectricBikeIcon />}
+                title="Total Rides"
+                value={stats.totalRides}
+                color="primary"
+                percent={85}
+              />
+            </Box>
+          </Zoom>
         </Grid>
         
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
-            <Typography variant="h6" gutterBottom>
-              Total Distance
-            </Typography>
-            <Typography variant="h4">
-              {stats.totalDistance} km
-            </Typography>
-          </Paper>
+        <Grid item xs={12} sm={6} lg={3}>
+          <Zoom in={true} style={{ transitionDelay: '200ms' }}>
+            <Box>
+              <StatCard
+                icon={<RouteTwoToneIcon />}
+                title="Total Distance"
+                value={`${stats.totalDistance} km`}
+                color="success"
+                percent={62}
+              />
+            </Box>
+          </Zoom>
         </Grid>
         
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
-            <Typography variant="h6" gutterBottom>
-              Total Time
-            </Typography>
-            <Typography variant="h4">
-              {stats.totalDuration} min
-            </Typography>
-          </Paper>
+        <Grid item xs={12} sm={6} lg={3}>
+          <Zoom in={true} style={{ transitionDelay: '300ms' }}>
+            <Box>
+              <StatCard
+                icon={<AccessTimeIcon />}
+                title="Total Time"
+                value={`${stats.totalDuration} min`}
+                color="info"
+                percent={78}
+              />
+            </Box>
+          </Zoom>
         </Grid>
         
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
-            <Typography variant="h6" gutterBottom>
-              Avg. Rating
-            </Typography>
-            <Typography variant="h4">
-              {stats.avgRating}/5
-            </Typography>
-          </Paper>
+        <Grid item xs={12} sm={6} lg={3}>
+          <Zoom in={true} style={{ transitionDelay: '400ms' }}>
+            <Box>
+              <StatCard
+                icon={<StarIcon />}
+                title="Avg. Rating"
+                value={`${stats.avgRating}/5`}
+                color="warning"
+                percent={parseInt(stats.avgRating) * 20}
+              />
+            </Box>
+          </Zoom>
         </Grid>
       </Grid>
 
-      <Paper elevation={3} sx={{ mb: 4 }}>
-        <Box sx={{ p: 3 }}>
-          <Typography variant="h6" gutterBottom>
-            Recent Activity
-          </Typography>
-          <Line data={getChartData()} />
-        </Box>
-      </Paper>
+      <Grid container spacing={4} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={8}>
+          <Fade in={true} timeout={1000}>
+            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Weekly Activity
+                </Typography>
+                <Button endIcon={<NavigateNextIcon />} sx={{ textTransform: 'none' }}>
+                  View Details
+                </Button>
+              </Box>
+              <SimpleLineChart data={getChartData()} height={250} />
+            </Paper>
+          </Fade>
+        </Grid>
+        
+        <Grid item xs={12} md={4}>
+          <Fade in={true} timeout={1000} style={{ transitionDelay: '300ms' }}>
+            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, height: '100%', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
+                Quick Actions
+              </Typography>
+              
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Button 
+                  variant="outlined" 
+                  color="primary" 
+                  startIcon={<MapIcon />}
+                  fullWidth
+                  sx={{ justifyContent: 'flex-start', py: 1.5, borderRadius: 2 }}
+                >
+                  Explore Bike Stations
+                </Button>
+                
+                <Button 
+                  variant="outlined" 
+                  color="primary"
+                  startIcon={<DirectionsBikeIcon />}
+                  fullWidth
+                  sx={{ justifyContent: 'flex-start', py: 1.5, borderRadius: 2 }}
+                >
+                  View My Routes
+                </Button>
+                
+                <Button 
+                  variant="outlined" 
+                  color="primary"
+                  startIcon={<AccountBalanceWalletIcon />}
+                  fullWidth
+                  sx={{ justifyContent: 'flex-start', py: 1.5, borderRadius: 2 }}
+                >
+                  Add Payment Method
+                </Button>
+                
+                <Button 
+                  variant="outlined" 
+                  color="primary"
+                  startIcon={<LocalOfferIcon />}
+                  fullWidth
+                  sx={{ justifyContent: 'flex-start', py: 1.5, borderRadius: 2 }}
+                >
+                  Refer a Friend
+                </Button>
+              </Box>
+            </Paper>
+          </Fade>
+        </Grid>
+      </Grid>
 
-      <Paper elevation={3}>
-        <Tabs value={tabValue} onChange={handleTabChange} centered>
+      <Paper elevation={0} sx={{ borderRadius: 4, overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+        <Tabs 
+          value={tabValue} 
+          onChange={handleTabChange} 
+          textColor="primary"
+          indicatorColor="primary"
+          sx={{ 
+            px: 2, 
+            borderBottom: 1, 
+            borderColor: 'divider',
+            '& .MuiTab-root': {
+              minHeight: 64,
+              fontWeight: 600,
+            }
+          }}
+        >
           <Tab label="Ride History" />
           <Tab label="Penalties" />
         </Tabs>
         
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: { xs: 2, md: 3 } }}>
           {tabValue === 0 ? (
             rides.length > 0 ? (
-              rides.map((ride) => (
-                <Paper 
-                  key={ride.id}
-                  elevation={1}
-                  sx={{ p: 2, mb: 2 }}
-                >
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={4}>
-                      <Typography variant="subtitle1">
-                        {ride.date} • {ride.time}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Bike: {ride.bikeModel}
-                      </Typography>
-                    </Grid>
-                    
-                    <Grid item xs={12} md={5}>
-                      <Typography variant="body1">
-                        From: {ride.source}
-                      </Typography>
-                      <Typography variant="body1">
-                        To: {ride.destination}
-                      </Typography>
-                    </Grid>
-                    
-                    <Grid item xs={12} md={3} sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'flex-start', md: 'flex-end' } }}>
-                      <Typography variant="subtitle1">
-                        ₹{ride.fare}
-                      </Typography>
-                      <Typography variant="body2">
-                        {ride.distance} km • {ride.durationMinutes} min
-                      </Typography>
-                      <Chip 
-                        size="small"
-                        label={ride.status} 
-                        color={ride.status === 'Completed' ? 'success' : 'primary'}
-                        sx={{ mt: 1 }}
-                      />
-                    </Grid>
-                  </Grid>
-                </Paper>
-              ))
+              <Box>
+                {rides.map((ride, index) => (
+                  <Fade in={true} timeout={1000} style={{ transitionDelay: `${index * 100}ms` }} key={ride.id}>
+                    <Paper 
+                      elevation={0}
+                      sx={{ 
+                        p: 2, 
+                        mb: 2, 
+                        borderRadius: 3,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        transition: 'transform 0.2s, box-shadow 0.2s',
+                        '&:hover': {
+                          transform: 'translateY(-3px)',
+                          boxShadow: '0 6px 16px rgba(0,0,0,0.1)',
+                        }
+                      }}
+                    >
+                      <Grid container spacing={2} alignItems="center">
+                        <Grid item xs={12} md={1}>
+                          <Avatar sx={{ bgcolor: 'primary.light' }}>
+                            <ElectricBikeIcon />
+                          </Avatar>
+                        </Grid>
+                        
+                        <Grid item xs={12} md={3}>
+                          <Typography variant="subtitle1" fontWeight={600}>
+                            {ride.date} • {ride.time}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {ride.bikeModel}
+                          </Typography>
+                        </Grid>
+                        
+                        <Grid item xs={12} md={4}>
+                          <Typography variant="body1">
+                            From: {ride.source}
+                          </Typography>
+                          <Typography variant="body1">
+                            To: {ride.destination}
+                          </Typography>
+                        </Grid>
+                        
+                        <Grid item xs={12} md={3} sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'flex-start', md: 'flex-end' } }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Typography variant="subtitle1" fontWeight={600} sx={{ mr: 1 }}>
+                              ₹{ride.fare}
+                            </Typography>
+                            <IconButton size="small">
+                              <MoreVertIcon fontSize="small" />
+                            </IconButton>
+                          </Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+                            <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+                              {ride.distance} km • {ride.durationMinutes} min
+                            </Typography>
+                          </Box>
+                          <Chip 
+                            size="small"
+                            label={ride.status} 
+                            color={ride.status === 'Completed' ? 'success' : 'primary'}
+                            sx={{ mt: 1, borderRadius: 1 }}
+                          />
+                        </Grid>
+                        
+                        <Grid item xs={12}>
+                          <Divider sx={{ my: 1 }} />
+                          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <Button size="small" sx={{ mr: 1 }}>View Details</Button>
+                            <Button size="small" variant="outlined">Repeat Ride</Button>
+                          </Box>
+                        </Grid>
+                      </Grid>
+                    </Paper>
+                  </Fade>
+                ))}
+              </Box>
             ) : (
               <Typography variant="body1" sx={{ textAlign: 'center', my: 4 }}>
                 No ride history available yet.
@@ -217,45 +520,74 @@ const DashboardPage = () => {
             )
           ) : (
             penalties.length > 0 ? (
-              penalties.map((penalty) => (
-                <Paper 
-                  key={penalty.id}
-                  elevation={1}
-                  sx={{ p: 2, mb: 2 }}
-                >
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={4}>
-                      <Typography variant="subtitle1">
-                        {penalty.date}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Ride ID: {penalty.rideId}
-                      </Typography>
-                    </Grid>
-                    
-                    <Grid item xs={12} md={5}>
-                      <Typography variant="body1">
-                        Reason: {penalty.reason}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {penalty.description}
-                      </Typography>
-                    </Grid>
-                    
-                    <Grid item xs={12} md={3} sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'flex-start', md: 'flex-end' } }}>
-                      <Typography variant="subtitle1">
-                        ₹{penalty.amount}
-                      </Typography>
-                      <Chip 
-                        size="small"
-                        label={penalty.status} 
-                        color={penalty.status === 'Paid' ? 'success' : 'error'}
-                        sx={{ mt: 1 }}
-                      />
-                    </Grid>
-                  </Grid>
-                </Paper>
-              ))
+              <Box>
+                {penalties.map((penalty, index) => (
+                  <Fade in={true} timeout={1000} style={{ transitionDelay: `${index * 100}ms` }} key={penalty.id}>
+                    <Paper 
+                      elevation={0}
+                      sx={{ 
+                        p: 2, 
+                        mb: 2, 
+                        borderRadius: 3,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        transition: 'transform 0.2s, box-shadow 0.2s',
+                        '&:hover': {
+                          transform: 'translateY(-3px)',
+                          boxShadow: '0 6px 16px rgba(0,0,0,0.1)',
+                        }
+                      }}
+                    >
+                      <Grid container spacing={2} alignItems="center">
+                        <Grid item xs={12} md={1}>
+                          <Avatar sx={{ bgcolor: penalty.status === 'Paid' ? 'success.light' : 'error.light' }}>
+                            {penalty.status === 'Paid' ? '✓' : '!'}
+                          </Avatar>
+                        </Grid>
+                        
+                        <Grid item xs={12} md={3}>
+                          <Typography variant="subtitle1" fontWeight={600}>
+                            {penalty.date}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Ride ID: {penalty.rideId}
+                          </Typography>
+                        </Grid>
+                        
+                        <Grid item xs={12} md={5}>
+                          <Typography variant="body1" fontWeight={500}>
+                            {penalty.reason}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {penalty.description}
+                          </Typography>
+                        </Grid>
+                        
+                        <Grid item xs={12} md={3} sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'flex-start', md: 'flex-end' } }}>
+                          <Typography variant="subtitle1" fontWeight={600}>
+                            ₹{penalty.amount}
+                          </Typography>
+                          <Chip 
+                            size="small"
+                            label={penalty.status} 
+                            color={penalty.status === 'Paid' ? 'success' : 'error'}
+                            sx={{ mt: 1, borderRadius: 1 }}
+                          />
+                        </Grid>
+                        
+                        {penalty.status !== 'Paid' && (
+                          <Grid item xs={12}>
+                            <Divider sx={{ my: 1 }} />
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                              <Button size="small" color="primary" variant="contained">Pay Now</Button>
+                            </Box>
+                          </Grid>
+                        )}
+                      </Grid>
+                    </Paper>
+                  </Fade>
+                ))}
+              </Box>
             ) : (
               <Typography variant="body1" sx={{ textAlign: 'center', my: 4 }}>
                 No penalties recorded.
