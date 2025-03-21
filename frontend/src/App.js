@@ -17,6 +17,8 @@ import RideTrackingPage from './pages/RidePage/RideTrackingPage';
 import PaymentPage from './pages/PaymentPage/PaymentPage';
 import DashboardPage from './pages/DashboardPage/DashboardPage';
 import AdminDashboard from './pages/AdminPage/AdminDashboard';
+import DigiLockerCallback from './pages/AuthPage/DigiLockerCallback';
+
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -37,6 +39,7 @@ function App() {
         <Route path="login" element={<LoginPage />} />
         <Route path="signup" element={<SignupPage />} />
         <Route path="terms" element={<TermsPage />} />
+        <Route path="/auth/digilocker/callback" element={<DigiLockerCallback />} />
         
         <Route path="document-verification" element={
           <ProtectedRoute>
