@@ -1,0 +1,45 @@
+2025-03-22 18:23:40,551 [INFO] Connected to MongoDB successfully
+2025-03-22 18:28:10,644 [INFO] Connected to MongoDB successfully
+2025-03-22 18:34:30,025 [INFO] Connected to MongoDB successfully
+2025-03-22 18:34:30,358 [ERROR] Error connecting to MQTT broker: [Errno 11001] getaddrinfo failed
+2025-03-22 18:34:30,359 [ERROR] Failed to subscribe to bikes/+/status: The client is not currently connected.
+2025-03-22 18:34:30,360 [ERROR] Failed to subscribe to bikes/+/alarm: The client is not currently connected.
+2025-03-22 18:34:30,360 [INFO] Application startup complete
+2025-03-22 18:35:27,030 [INFO] Connected to MongoDB successfully
+2025-03-22 18:35:27,184 [ERROR] Error connecting to MQTT broker: [Errno 11001] getaddrinfo failed
+2025-03-22 18:35:27,222 [ERROR] Failed to subscribe to bikes/+/status: The client is not currently connected.
+2025-03-22 18:35:27,223 [ERROR] Failed to subscribe to bikes/+/alarm: The client is not currently connected.
+2025-03-22 18:35:27,224 [INFO] Application startup complete
+2025-03-22 21:25:27,393 [INFO] Connected to MongoDB successfully
+2025-03-22 21:25:38,481 [ERROR] Error connecting to MQTT broker: [Errno 11001] getaddrinfo failed
+2025-03-22 21:25:38,481 [ERROR] Failed to subscribe to bikes/+/status: The client is not currently connected.
+2025-03-22 21:25:38,482 [ERROR] Failed to subscribe to bikes/+/alarm: The client is not currently connected.
+2025-03-22 21:25:38,482 [INFO] Application startup complete
+2025-03-22 21:33:11,470 [INFO] MongoDB connection closed
+2025-03-22 21:33:11,471 [INFO] Application shutdown complete
+2025-03-22 21:33:56,566 [INFO] Connected to MongoDB successfully
+2025-03-22 21:34:07,665 [ERROR] Error connecting to MQTT broker: [Errno 11001] getaddrinfo failed
+2025-03-22 21:34:07,667 [ERROR] Failed to subscribe to bikes/+/status: The client is not currently connected.
+2025-03-22 21:34:07,667 [ERROR] Failed to subscribe to bikes/+/alarm: The client is not currently connected.
+2025-03-22 21:34:07,667 [INFO] Application startup complete
+2025-03-22 21:36:47,879 [INFO] Connected to MongoDB successfully
+2025-03-22 21:36:58,985 [WARNING] MQTT connection disabled: [Errno 11001] getaddrinfo failed
+2025-03-22 21:36:58,985 [ERROR] Failed to subscribe to bikes/+/status: The client is not currently connected.
+2025-03-22 21:36:58,986 [ERROR] Failed to subscribe to bikes/+/alarm: The client is not currently connected.
+2025-03-22 21:36:58,986 [INFO] Application startup complete
+2025-03-22 21:37:33,567 [INFO] Connected to MongoDB successfully
+2025-03-22 21:37:44,661 [WARNING] MQTT connection disabled: [Errno 11001] getaddrinfo failed
+2025-03-22 21:37:44,662 [ERROR] Failed to subscribe to bikes/+/status: The client is not currently connected.
+2025-03-22 21:37:44,663 [ERROR] Failed to subscribe to bikes/+/alarm: The client is not currently connected.
+2025-03-22 21:37:44,663 [INFO] Application startup complete
+2025-03-22 21:55:54,200 [INFO] Connected to MongoDB successfully
+2025-03-22 21:56:05,275 [WARNING] MQTT connection disabled: [Errno 11001] getaddrinfo failed
+2025-03-22 21:56:05,276 [ERROR] Failed to subscribe to bikes/+/status: The client is not currently connected.
+2025-03-22 21:56:05,277 [ERROR] Failed to subscribe to bikes/+/alarm: The client is not currently connected.
+2025-03-22 21:56:05,277 [INFO] Application startup complete
+2025-03-22 21:56:40,232 [INFO] Connected to MongoDB successfully
+2025-03-22 21:56:53,963 [INFO] Connected to MongoDB successfully
+2025-03-22 21:57:05,065 [WARNING] MQTT connection disabled: [Errno 11001] getaddrinfo failed
+2025-03-22 21:57:05,067 [ERROR] Failed to subscribe to bikes/+/status: The client is not currently connected.
+2025-03-22 21:57:05,068 [ERROR] Failed to subscribe to bikes/+/alarm: The client is not currently connected.
+2025-03-22 21:57:05,069 [INFO] Application startup complete
