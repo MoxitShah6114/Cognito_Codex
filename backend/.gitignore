@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+/node_modules
+*/node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build files
+/dist
+/build
+
+# Debug logs
+logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Upload directories - keep the folder but ignore its contents
+/uploads/*
+!/uploads/.gitkeep
+/uploads/bikes/*
+!/uploads/bikes/.gitkeep
+/uploads/documents/*
+!/uploads/documents/.gitkeep
+/uploads/ride-images/*
+!/uploads/ride-images/.gitkeep
+
+# Test coverage
+/coverage
+.nyc_output
+
+# Package Files
+*.tgz
+yarn.lock
+package-lock.json
