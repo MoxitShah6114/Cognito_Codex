@@ -1,22 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Paper, Button, CircularProgress, Grid, Chip } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
-import { GoogleMap, LoadScript, Marker, DirectionsRenderer } from '@react-google-maps/api';
+import MapView from '../../components/map/MapView';
 import { getRideDetails, endRide } from '../../services/rideService';
 import { captureRideImage } from '../../services/cameraService';
 import CameraCapture from '../../components/camera/CameraCapture';
-
-const containerStyle = {
-  width: '100%',
-  height: '400px'
-};
 
 const RideTrackingPage = () => {
   const { rideId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [ride, setRide] = useState(null);
-  const [directions, setDirections] = useState(null);
   const [rideStatus, setRideStatus] = useState('active');
   const [elapsedTime, setElapsedTime] = useState(0);
   const [showCamera, setShowCamera] = useState(false);
@@ -27,17 +21,6 @@ const RideTrackingPage = () => {
       try {
         const rideData = await getRideDetails(rideId);
         setRide(rideData);
-        
-        // Simulate directions data
-        setDirections({
-          routes: [{
-            legs: [{
-              steps: [],
-              distance: { text: '8.5 km' },
-              duration: { text: '30 mins' }
-            }]
-          }]
-        });
       } catch (error) {
         console.error('Error loading ride details:', error);
       } finally {
@@ -115,10 +98,10 @@ const RideTrackingPage = () => {
               To: {ride?.destination || 'Destination Location'}
             </Typography>
             <Typography variant="body1">
-              Distance: {directions?.routes[0]?.legs[0]?.distance?.text || 'Calculating...'}
+              Distance: {ride?.distance || '8.5 km'}
             </Typography>
             <Typography variant="body1">
-              Estimated Duration: {directions?.routes[0]?.legs[0]?.duration?.text || 'Calculating...'}
+              Estimated Duration: {ride?.duration || '30 mins'}
             </Typography>
           </Grid>
           
@@ -179,26 +162,14 @@ const RideTrackingPage = () => {
           Track Your Ride
         </Typography>
         
-        <LoadScript googleMapsApiKey="YOUR_GOOGLE_MAPS_API_KEY">
-          <GoogleMap
-            mapContainerStyle={containerStyle}
-            center={{ lat: 28.6139, lng: 77.2090 }}
-            zoom={13}
-          >
-            {/* Source marker */}
-            <Marker position={{ lat: 28.6139, lng: 77.2090 }} />
-            {/* Destination marker */}
-            <Marker position={{ lat: 28.7041, lng: 77.1025 }} />
-            {/* Current location marker */}
-            <Marker 
-              position={{ lat: 28.6500, lng: 77.1800 }}
-              icon={{
-                url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-              }}
-            />
-            {directions && <DirectionsRenderer directions={directions} />}
-          </GoogleMap>
-        </LoadScript>
+        <MapView 
+          sourceLocation={ride?.source || 'Source Location'}
+          destinationLocation={ride?.destination || 'Destination Location'}
+          sourceCoords={{ lat: 28.6139, lng: 77.2090 }}
+          destCoords={{ lat: 28.7041, lng: 77.1025 }}
+          currentLocation={{ lat: 28.6500, lng: 77.1800 }}
+          height={400}
+        />
       </Paper>
 
       {showCamera && (

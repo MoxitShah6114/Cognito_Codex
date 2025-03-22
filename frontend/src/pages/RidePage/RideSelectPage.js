@@ -1,19 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Paper, Button, CircularProgress, TextField, Grid, Card, CardContent, CardMedia } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { GoogleMap, LoadScript, Marker, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
+import MapView from '../../components/map/MapView';
 import { getAvailableBikes } from '../../services/rideService';
+import { geocodeAddress, calculateRoute } from '../../services/mapService';
 import { useAuth } from '../../context/AuthContext';
-
-const containerStyle = {
-  width: '100%',
-  height: '400px'
-};
-
-const center = {
-  lat: 28.6139, // Default center (Delhi)
-  lng: 77.2090
-};
 
 const RideSelectPage = () => {
   const navigate = useNavigate();
@@ -23,7 +14,6 @@ const RideSelectPage = () => {
   const [selectedBike, setSelectedBike] = useState(null);
   const [sourceLocation, setSourceLocation] = useState('');
   const [destinationLocation, setDestinationLocation] = useState('');
-  const [directions, setDirections] = useState(null);
   const [sourceCoords, setSourceCoords] = useState(null);
   const [destCoords, setDestCoords] = useState(null);
   const [distance, setDistance] = useState(null);
@@ -46,50 +36,50 @@ const RideSelectPage = () => {
     loadBikes();
   }, []);
 
-  const handleSourceChange = (e) => {
-    setSourceLocation(e.target.value);
-    // In a real app, we would use a geocoding service here
-    setSourceCoords({ lat: 28.6139, lng: 77.2090 });
+  const handleSourceChange = async (e) => {
+    const address = e.target.value;
+    setSourceLocation(address);
+    
+    if (address.length > 5) {
+      try {
+        const coords = await geocodeAddress(address);
+        setSourceCoords(coords);
+        updateRouteInfo();
+      } catch (error) {
+        console.error('Geocoding error:', error);
+      }
+    }
   };
 
-  const handleDestinationChange = (e) => {
-    setDestinationLocation(e.target.value);
-    // In a real app, we would use a geocoding service here
-    setDestCoords({ lat: 28.7041, lng: 77.1025 });
+  const handleDestinationChange = async (e) => {
+    const address = e.target.value;
+    setDestinationLocation(address);
+    
+    if (address.length > 5) {
+      try {
+        const coords = await geocodeAddress(address);
+        setDestCoords(coords);
+        updateRouteInfo();
+      } catch (error) {
+        console.error('Geocoding error:', error);
+      }
+    }
+  };
+
+  const updateRouteInfo = () => {
+    if (sourceCoords && destCoords) {
+      const routeInfo = calculateRoute(sourceCoords, destCoords);
+      setDistance(routeInfo.distance.text);
+      setDuration(routeInfo.duration.text);
+      
+      // Calculate estimated cost (₹15 per km)
+      const distanceValue = parseFloat(routeInfo.distance.text);
+      setEstimatedCost((distanceValue * 15).toFixed(2));
+    }
   };
 
   const handleSelectBike = (bike) => {
     setSelectedBike(bike);
-  };
-
-  const calculateRoute = () => {
-    if (sourceCoords && destCoords) {
-      return (
-        <DirectionsService
-          options={{
-            origin: sourceCoords,
-            destination: destCoords,
-            travelMode: 'DRIVING'
-          }}
-          callback={(response) => {
-            if (response !== null) {
-              if (response.status === 'OK') {
-                setDirections(response);
-                
-                const route = response.routes[0];
-                setDistance(route.legs[0].distance.text);
-                setDuration(route.legs[0].duration.text);
-                
-                // Calculate estimated cost (₹15 per km)
-                const distanceValue = route.legs[0].distance.value / 1000; // convert to km
-                setEstimatedCost((distanceValue * 15).toFixed(2));
-              }
-            }
-          }}
-        />
-      );
-    }
-    return null;
   };
 
   const handleBookRide = async () => {
@@ -149,18 +139,21 @@ const RideSelectPage = () => {
             Route Map
           </Typography>
           
-          <LoadScript googleMapsApiKey="YOUR_GOOGLE_MAPS_API_KEY">
-            <GoogleMap
-              mapContainerStyle={containerStyle}
-              center={center}
-              zoom={10}
-            >
-              {sourceCoords && <Marker position={sourceCoords} />}
-              {destCoords && <Marker position={destCoords} />}
-              {calculateRoute()}
-              {directions && <DirectionsRenderer directions={directions} />}
-            </GoogleMap>
-          </LoadScript>
+          <MapView 
+  sourceLocation={sourceLocation}
+  destinationLocation={destinationLocation}
+  sourceCoords={sourceCoords}
+  destCoords={destCoords}
+  height={400}
+  onRouteFound={(routeInfo) => {
+    setDistance(routeInfo.distance.text);
+    setDuration(routeInfo.duration.text);
+    
+    // Calculate estimated cost (₹15 per km)
+    const distanceValue = routeInfo.distance.value / 1000; // Convert to km
+    setEstimatedCost((distanceValue * 15).toFixed(2));
+  }}
+/>
           
           {distance && duration && estimatedCost && (
             <Box sx={{ mt: 2 }}>

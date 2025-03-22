@@ -19,9 +19,13 @@ import DocumentVerification from './pages/AuthPage/DocumentVerification';
 import DigiLockerCallback from './pages/AuthPage/DigiLockerCallback';
 import RideSelectPage from './pages/RidePage/RideSelectPage';
 import RideTrackingPage from './pages/RidePage/RideTrackingPage';
-import PaymentPage from './pages/PaymentPage/PaymentPage';
+import PaymentPage from './pages/PaymentPage/PaymentsPage';
 import DashboardPage from './pages/DashboardPage/DashboardPage';
 import AdminDashboard from './pages/AdminPage/AdminDashboard';
+import PaymentsPage from './pages/PaymentPage/PaymentsPage';
+import SettingsPage from './pages/SettingsPage/SettingsPage';
+import HelpSupportPage from './pages/HelpPage/HelpSupportPage';
+import RideHistoryPage from './pages/RidePage/RideHistoryPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -81,6 +85,30 @@ function App() {
               <AdminDashboard />
             </AdminRoute>
           } />
+
+<Route path="payments" element={
+  <ProtectedRoute>
+    <PaymentsPage />
+  </ProtectedRoute>
+} />
+
+<Route path="settings" element={
+  <ProtectedRoute>
+    <SettingsPage />
+  </ProtectedRoute>
+} />
+
+<Route path="help" element={
+  <ProtectedRoute>
+    <HelpSupportPage />
+  </ProtectedRoute>
+} />
+
+<Route path="ride-history" element={
+  <ProtectedRoute>
+    <RideHistoryPage />
+  </ProtectedRoute>
+} />
         </Route>
       </Routes>
     </ThemeProvider>

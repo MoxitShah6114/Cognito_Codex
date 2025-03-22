@@ -14,7 +14,6 @@ import {
   CircularProgress,
   Avatar,
   Divider,
-  IconButton,
   LinearProgress,
   useTheme,
   Fade,
@@ -27,98 +26,113 @@ import RouteTwoToneIcon from '@mui/icons-material/RouteTwoTone';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import StarIcon from '@mui/icons-material/Star';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import MapIcon from '@mui/icons-material/Map';
-import DirectionsBikeIcon from '@mui/icons-material/DirectionsBike';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import LocalOfferIcon from '@mui/icons-material/LocalOffer';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ExploreIcon from '@mui/icons-material/Explore';
+import PaymentIcon from '@mui/icons-material/Payment';
+import ShareIcon from '@mui/icons-material/Share';
 
-// Replace Chart.js with a simpler visual component for stats
-const SimpleLineChart = ({ data, height = 200 }) => {
+// Improved weekly activity chart component
+const WeeklyActivityChart = () => {
   const theme = useTheme();
-  const maxValue = Math.max(...data.datasets[0].data) * 1.2 || 10;
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  
+  // Sample data - replace with actual data from your API
+  const distances = [3.2, 5.7, 0, 8.3, 4.1, 9.2, 6.5];
+  const maxDistance = Math.max(...distances);
   
   return (
-    <Box sx={{ height, position: 'relative', p: 1 }}>
-      <Box sx={{ 
-        display: 'flex', 
-        height: '70%', 
-        alignItems: 'flex-end',
-        justifyContent: 'space-between',
-        position: 'relative',
-        zIndex: 2,
-      }}>
-        {data.datasets[0].data.map((value, index) => (
-          <Box key={index} sx={{ 
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: `${100 / data.datasets[0].data.length}%`
-          }}>
-            <Box sx={{ 
-              height: `${(value / maxValue) * 100}%`,
-              width: 12,
-              borderRadius: '4px 4px 0 0',
-              background: `linear-gradient(to top, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
-              minHeight: 4,
-              position: 'relative',
-              '&:hover': {
-                width: 16,
-                boxShadow: '0 0 10px rgba(33, 150, 243, 0.5)',
-              },
-              transition: 'width 0.3s, box-shadow 0.3s',
-              '&::after': {
-                content: '""',
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: '30%',
-                background: `linear-gradient(to top, ${theme.palette.primary.dark}, transparent)`,
+    <Box sx={{ position: 'relative', mt: 3, height: 200 }}>
+      {/* Background grid lines */}
+      {[0.25, 0.5, 0.75].map((line, i) => (
+        <Box 
+          key={i} 
+          sx={{ 
+            position: 'absolute', 
+            left: 0, 
+            right: 0, 
+            top: `${100 - line * 100}%`, 
+            borderBottom: '1px dashed #e0e0e0',
+            zIndex: 1
+          }}
+        />
+      ))}
+      
+      {/* Bars */}
+      <Box sx={{ display: 'flex', height: '100%', alignItems: 'flex-end', position: 'relative', zIndex: 2 }}>
+        {distances.map((distance, index) => (
+          <Box 
+            key={index} 
+            sx={{ 
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              height: '100%',
+              justifyContent: 'flex-end',
+            }}
+          >
+            <Box 
+              sx={{ 
+                position: 'relative',
+                width: 24,
+                height: `${(distance / (maxDistance * 1.2)) * 100}%`,
+                minHeight: distance ? 4 : 0,
                 borderRadius: '4px 4px 0 0',
-              }
-            }}>
-              <Box sx={{ 
-                position: 'absolute',
-                top: -25,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                bgcolor: 'primary.light',
-                color: 'white',
-                fontSize: '0.7rem',
-                fontWeight: 'bold',
-                py: 0.5,
-                px: 1,
-                borderRadius: 1,
-                visibility: 'hidden',
-                opacity: 0,
-                transition: 'visibility 0s, opacity 0.3s',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+                background: distance ? `linear-gradient(to top, ${theme.palette.primary.main}, ${theme.palette.primary.light})` : 'none',
                 '&:hover': {
-                  visibility: 'visible',
-                  opacity: 1,
+                  transform: 'scaleX(1.2)',
+                  boxShadow: distance ? '0 0 10px rgba(33, 150, 243, 0.4)' : 'none',
                 }
-              }}>
-                {value}
+              }}
+            >
+              <Box 
+                sx={{ 
+                  position: 'absolute', 
+                  top: -35, 
+                  left: '50%', 
+                  transform: 'translateX(-50%)',
+                  backgroundColor: 'primary.main',
+                  color: 'white',
+                  py: 0.5,
+                  px: 1,
+                  borderRadius: 1,
+                  fontSize: '0.75rem',
+                  fontWeight: 'bold',
+                  opacity: 0,
+                  visibility: 'hidden',
+                  transition: 'opacity 0.2s, visibility 0.2s',
+                  '&:after': {
+                    content: '""',
+                    position: 'absolute',
+                    top: '100%',
+                    left: '50%',
+                    marginLeft: '-5px',
+                    borderWidth: '5px',
+                    borderStyle: 'solid',
+                    borderColor: 'primary.main transparent transparent transparent'
+                  },
+                  '.MuiBox-root:hover &': {
+                    opacity: 1,
+                    visibility: 'visible'
+                  }
+                }}
+              >
+                {distance > 0 ? `${distance} km` : 'No ride'}
               </Box>
             </Box>
-            <Typography variant="caption" sx={{ mt: 1, fontSize: '0.7rem' }}>
-              {data.labels[index]}
+            <Typography 
+              variant="caption" 
+              sx={{ 
+                mt: 1, 
+                color: 'text.secondary',
+                fontWeight: index === 6 ? 'bold' : 'regular', // Highlight today
+                color: index === 6 ? 'primary.main' : 'text.secondary' // Highlight today
+              }}
+            >
+              {days[index]}
             </Typography>
           </Box>
-        ))}
-      </Box>
-      
-      {/* Horizontal lines in background */}
-      <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: '30%', zIndex: 1 }}>
-        {[0.2, 0.4, 0.6, 0.8].map((pos, i) => (
-          <Box key={i} sx={{ 
-            position: 'absolute', 
-            left: 0,
-            right: 0,
-            bottom: `${pos * 100}%`,
-            height: 1,
-            bgcolor: 'rgba(0,0,0,0.05)'
-          }} />
         ))}
       </Box>
     </Box>
@@ -237,24 +251,6 @@ const DashboardPage = () => {
     navigate('/ride-select');
   };
 
-  const getChartData = () => {
-    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const distances = [5.2, 3.7, 0, 8.3, 4.1, 10.2, 6.5];
-    
-    return {
-      labels,
-      datasets: [
-        {
-          label: 'Distance (km)',
-          data: distances,
-          fill: false,
-          backgroundColor: theme.palette.primary.main,
-          borderColor: theme.palette.primary.main,
-        },
-      ],
-    };
-  };
-
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
@@ -351,11 +347,16 @@ const DashboardPage = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
                   Weekly Activity
                 </Typography>
-                <Button endIcon={<NavigateNextIcon />} sx={{ textTransform: 'none' }}>
+                <Button 
+                  variant="text" 
+                  endIcon={<NavigateNextIcon />} 
+                  onClick={() => navigate('/ride-history')}
+                >
                   View Details
                 </Button>
               </Box>
-              <SimpleLineChart data={getChartData()} height={250} />
+              
+              <WeeklyActivityChart />
             </Paper>
           </Fade>
         </Grid>
@@ -371,9 +372,10 @@ const DashboardPage = () => {
                 <Button 
                   variant="outlined" 
                   color="primary" 
-                  startIcon={<MapIcon />}
+                  startIcon={<ExploreIcon />}
                   fullWidth
                   sx={{ justifyContent: 'flex-start', py: 1.5, borderRadius: 2 }}
+                  onClick={() => navigate('/bike-stations')}
                 >
                   Explore Bike Stations
                 </Button>
@@ -381,9 +383,10 @@ const DashboardPage = () => {
                 <Button 
                   variant="outlined" 
                   color="primary"
-                  startIcon={<DirectionsBikeIcon />}
+                  startIcon={<ElectricBikeIcon />}
                   fullWidth
                   sx={{ justifyContent: 'flex-start', py: 1.5, borderRadius: 2 }}
+                  onClick={() => navigate('/ride-history')}
                 >
                   View My Routes
                 </Button>
@@ -391,9 +394,10 @@ const DashboardPage = () => {
                 <Button 
                   variant="outlined" 
                   color="primary"
-                  startIcon={<AccountBalanceWalletIcon />}
+                  startIcon={<PaymentIcon />}
                   fullWidth
                   sx={{ justifyContent: 'flex-start', py: 1.5, borderRadius: 2 }}
+                  onClick={() => navigate('/payments')}
                 >
                   Add Payment Method
                 </Button>
@@ -401,9 +405,10 @@ const DashboardPage = () => {
                 <Button 
                   variant="outlined" 
                   color="primary"
-                  startIcon={<LocalOfferIcon />}
+                  startIcon={<ShareIcon />}
                   fullWidth
                   sx={{ justifyContent: 'flex-start', py: 1.5, borderRadius: 2 }}
+                  onClick={() => navigate('/refer-friend')}
                 >
                   Refer a Friend
                 </Button>
@@ -480,33 +485,18 @@ const DashboardPage = () => {
                         </Grid>
                         
                         <Grid item xs={12} md={3} sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'flex-start', md: 'flex-end' } }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Typography variant="subtitle1" fontWeight={600} sx={{ mr: 1 }}>
-                              ₹{ride.fare}
-                            </Typography>
-                            <IconButton size="small">
-                              <MoreVertIcon fontSize="small" />
-                            </IconButton>
-                          </Box>
-                          <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-                            <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-                              {ride.distance} km • {ride.durationMinutes} min
-                            </Typography>
-                          </Box>
+                          <Typography variant="subtitle1" fontWeight={600}>
+                            ₹{ride.fare}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {ride.distance} km • {ride.durationMinutes} min
+                          </Typography>
                           <Chip 
                             size="small"
                             label={ride.status} 
                             color={ride.status === 'Completed' ? 'success' : 'primary'}
                             sx={{ mt: 1, borderRadius: 1 }}
                           />
-                        </Grid>
-                        
-                        <Grid item xs={12}>
-                          <Divider sx={{ my: 1 }} />
-                          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                            <Button size="small" sx={{ mr: 1 }}>View Details</Button>
-                            <Button size="small" variant="outlined">Repeat Ride</Button>
-                          </Box>
                         </Grid>
                       </Grid>
                     </Paper>
